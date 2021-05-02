@@ -3,6 +3,8 @@
 namespace App\Http\Livewire;
 
 use App\Models\Comment as CommentModel;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image as Image;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,6 +13,9 @@ class Comment extends Component
     use WithPagination;
 
     public $newComment;
+    public $image;
+
+    protected $listeners = ['fileUpload' => 'handleFileUpload'];
 
     public function updated($fields)
     {
@@ -19,18 +24,34 @@ class Comment extends Component
         ]);
     }
 
+    public function handleFileUpload($imageData)
+    {
+        $this->image = $imageData;
+    }
+
     public function addComment()
     {
         $this->validate([
             'newComment' => 'required|max:255',
         ]);
-        $createdComment = CommentModel::create([
+        $image = $this->storeImage();
+        CommentModel::create([
             'body' => $this->newComment,
+            'image' => $image,
             'user_id' => 1,
         ]);
-        $this->comments->prepend($createdComment);
         $this->newComment = '';
+        $this->image = '';
         session()->flash('message', 'Comment has been added successfully 😊');
+    }
+
+    public function storeImage()
+    {
+        if (!$this->image) {
+            return null;
+        }
+        $img = Image::make($this->image)->encode('jpg');
+        Storage::put('image.jpg', $img);
     }
 
     public function removeComment($commentId)
@@ -39,8 +60,6 @@ class Comment extends Component
         $commentToDelete = CommentModel::find($commentId);
         // delete comment from the database
         $commentToDelete->delete();
-        // remove comment from the frontend comments
-        $this->comments = $this->comments->where('id', '!=', $commentId);
         session()->flash('message', 'Comment deleted successfully 😭');
     }
 

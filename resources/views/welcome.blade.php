@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
     <title>Sample Livewire</title>
     @livewireStyles
+    @livewireScripts
 </head>
 <body>
     {{-- @livewire('counter') --}}
     {{-- @livewire('comment', ['comments' => $comments]) --}}
     <livewire:comment />
-    @livewireScripts
 </body>
 </html>
