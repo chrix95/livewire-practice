@@ -4,35 +4,50 @@ namespace App\Http\Livewire;
 
 use App\Models\Comment as CommentModel;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Comment extends Component
 {
-    public $newComment;
-    public $comments;
-    public $errorMessage = false;
+    use WithPagination;
 
-    public function mount()
+    public $newComment;
+
+    public function updated($fields)
     {
-        $this->comments = CommentModel::latest()->get();
+        $this->validateOnly($fields, [
+            'newComment' => 'required|max:255',
+        ]);
     }
 
     public function addComment()
     {
-        if ($this->newComment == '') {
-            $this->errorMessage = true;
-            return;
-        }
+        $this->validate([
+            'newComment' => 'required|max:255',
+        ]);
         $createdComment = CommentModel::create([
             'body' => $this->newComment,
             'user_id' => 1,
         ]);
         $this->comments->prepend($createdComment);
         $this->newComment = '';
-        $this->errorMessage = false;
+        session()->flash('message', 'Comment has been added successfully 😊');
+    }
+
+    public function removeComment($commentId)
+    {
+        // Find the comment
+        $commentToDelete = CommentModel::find($commentId);
+        // delete comment from the database
+        $commentToDelete->delete();
+        // remove comment from the frontend comments
+        $this->comments = $this->comments->where('id', '!=', $commentId);
+        session()->flash('message', 'Comment deleted successfully 😭');
     }
 
     public function render()
     {
-        return view('livewire.comment');
+        return view('livewire.comment', [
+            'comments' => CommentModel::latest()->paginate(2),
+        ]);
     }
 }
