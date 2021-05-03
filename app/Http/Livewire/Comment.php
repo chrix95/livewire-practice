@@ -15,8 +15,12 @@ class Comment extends Component
 
     public $newComment;
     public $image;
+    public $ticketId;
 
-    protected $listeners = ['fileUpload' => 'handleFileUpload'];
+    protected $listeners = [
+        'fileUpload' => 'handleFileUpload',
+        'ticketSelected',
+    ];
 
     public function updated($fields)
     {
@@ -30,6 +34,11 @@ class Comment extends Component
         $this->image = $imageData;
     }
 
+    public function ticketSelected($ticketId)
+    {
+        $this->ticketId = $ticketId;
+    }
+
     public function addComment()
     {
         $this->validate([
@@ -40,6 +49,7 @@ class Comment extends Component
             'body' => $this->newComment,
             'image' => $image,
             'user_id' => 1,
+            'support_ticket_id' => $this->ticketId,
         ]);
         $this->newComment = '';
         $this->image = '';
@@ -70,7 +80,7 @@ class Comment extends Component
     public function render()
     {
         return view('livewire.comment', [
-            'comments' => CommentModel::latest()->paginate(2),
+            'comments' => CommentModel::where('support_ticket_id', $this->ticketId)->latest()->paginate(2),
         ]);
     }
 }
