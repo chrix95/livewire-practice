@@ -30,6 +30,9 @@
                         <i class="fas fa-times text-red-200 hover:text-red-600 cursor-pointer" wire:click.prevent="removeComment({{$comment->id}})"></i>
                     </div>
                     <p class="text-gray-800">{{ $comment->body }}</p>
+                    @if ($comment->image)
+                        <img src="{{ $comment->imagePath }}">
+                    @endif
                 </div>
             @endforeach
             {{ $comments->links() }}

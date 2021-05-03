@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Comment as CommentModel;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image as Image;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -51,7 +52,9 @@ class Comment extends Component
             return null;
         }
         $img = Image::make($this->image)->encode('jpg');
-        Storage::put('image.jpg', $img);
+        $name = Str::random() . '.jpg';
+        Storage::disk('public')->put($name, $img);
+        return $name;
     }
 
     public function removeComment($commentId)
@@ -59,6 +62,7 @@ class Comment extends Component
         // Find the comment
         $commentToDelete = CommentModel::find($commentId);
         // delete comment from the database
+        Storage::disk('public')->delete($commentToDelete->image);
         $commentToDelete->delete();
         session()->flash('message', 'Comment deleted successfully 😭');
     }
