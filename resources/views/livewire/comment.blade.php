@@ -1,5 +1,5 @@
 <div>
-    <div class="w-12/12">
+    {{-- <div class="w-12/12"> --}}
         <h1 class="text-3xl">Comments</h1>
         @error('newComment') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
         <section>
@@ -35,7 +35,7 @@
             </div>
         @endforeach
         {{ $comments->links() }}
-    </div>
+    {{-- </div> --}}
 </div>
 <script>
     window.livewire.on('fileChoosen', () => {
